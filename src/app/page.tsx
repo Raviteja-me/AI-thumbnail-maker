@@ -6,13 +6,22 @@ import { MainApp } from '@/components/main-app';
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
+  // This state ensures that we don't try to render MainApp on the server,
+  // which could cause hydration issues with localStorage.
+  const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
+    setIsClient(true);
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (!isClient) {
+    return <SplashScreen />;
+  }
 
   return (
     <main>
