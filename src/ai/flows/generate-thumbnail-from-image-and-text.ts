@@ -18,6 +18,7 @@ const GenerateThumbnailsFromImageAndTextInputSchema = z.object({
     ),
   description: z.string().describe('A text description to guide the thumbnail generation.'),
   thumbnailText: z.string().optional().describe('Optional text to include in the thumbnail.'),
+  aspectRatio: z.enum(['landscape', 'square']).default('landscape').describe('The aspect ratio of the thumbnail.'),
 });
 export type GenerateThumbnailsFromImageAndTextInput = z.infer<typeof GenerateThumbnailsFromImageAndTextInputSchema>;
 
@@ -44,12 +45,14 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
       responseModalities: ['IMAGE', 'TEXT'],
     };
     
+    const aspectRatioText = input.aspectRatio === 'landscape' ? '16:9 landscape' : '1:1 square';
+    
     let basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to modify the provided image based on the user's description to create an engaging, high-quality YouTube thumbnail.
 
     **Key principles for a great thumbnail:**
-    1.  **Aspect Ratio:** The image MUST be 16:9 landscape.
+    1.  **Aspect Ratio:** The image MUST be ${aspectRatioText}.
     2.  **High Contrast & Vibrant Colors:** Make the image pop. Use bright, saturated colors that grab attention.
     3.  **Clear Focal Point:** The main subject should be instantly recognizable.
     4.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
@@ -61,7 +64,7 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
     7.  **Text Integration:** Include the following text in the thumbnail. Make it BIG, BOLD, and EASY TO READ. Use a thick, clean font with high contrast against the background (e.g., by using an outline or shadow). Place it strategically to draw attention without obscuring the main subject.`;
     }
 
-    let promptContent = `${basePrompt}\n\n**Instructions:**\nModify the reference image based on the following description to create a thumbnail that will get clicks.`;
+    let promptContent = `${basePrompt}\n\n**Instructions:**\nModify the reference image based on the following description to create a thumbnail that will get clicks. The output image MUST have a ${aspectRatioText} aspect ratio.`;
     
     if (input.thumbnailText) {
         promptContent += `\n\n**Text to include:** "${input.thumbnailText}"`

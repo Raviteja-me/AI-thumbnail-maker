@@ -13,6 +13,7 @@ import {z} from 'genkit';
 const GenerateThumbnailsFromTextInputSchema = z.object({
   prompt: z.string().describe('A text prompt to generate thumbnails from.'),
   thumbnailText: z.string().optional().describe('Optional text to include in the thumbnail.'),
+  aspectRatio: z.enum(['landscape', 'square']).default('landscape').describe('The aspect ratio of the thumbnail.'),
 });
 export type GenerateThumbnailsFromTextInput = z.infer<typeof GenerateThumbnailsFromTextInputSchema>;
 
@@ -39,12 +40,14 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
         responseModalities: ['IMAGE', 'TEXT'],
     };
     
+    const aspectRatioText = input.aspectRatio === 'landscape' ? '16:9 landscape' : '1:1 square';
+    
     let prompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to generate an engaging, high-quality YouTube thumbnail based on the user's video idea.
 
     **Key principles for a great thumbnail:**
-    1.  **Aspect Ratio:** The image MUST be 16:9 landscape.
+    1.  **Aspect Ratio:** The image MUST be ${aspectRatioText}.
     2.  **High Contrast & Vibrant Colors:** Make the image pop. Use bright, saturated colors that grab attention.
     3.  **Clear Focal Point:** The main subject should be instantly recognizable.
     4.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
@@ -62,7 +65,7 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
     prompt += `
 
     **Instructions:**
-    Create a thumbnail for a YouTube video with the following topic. The image must have a 16:9 aspect ratio.
+    Create a thumbnail for a YouTube video with the following topic. The image must have a ${aspectRatioText} aspect ratio.
     
     **Video Topic:** ${input.prompt}`;
 

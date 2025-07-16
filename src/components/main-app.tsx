@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateThumbnailsFromText } from '@/ai/flows/generate-thumbnail-from-text';
@@ -11,16 +11,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ThumbnailResults } from '@/components/thumbnail-results';
 import { ThumbForgeIcon } from './icons';
-import { Wand2, Upload, Loader2, CaseSensitive } from 'lucide-react';
+import { Wand2, Upload, Loader2, CaseSensitive, AspectRatio } from 'lucide-react';
 
 const textSchema = z.object({
   prompt: z.string().min(10, { message: 'Prompt must be at least 10 characters long.' }),
   thumbnailText: z.string().optional(),
+  aspectRatio: z.enum(['landscape', 'square']).default('landscape'),
 });
 type TextFormData = z.infer<typeof textSchema>;
 
@@ -28,6 +30,7 @@ const imageSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }),
   image: z.any().refine((files) => files?.length === 1, 'Image is required.'),
   thumbnailText: z.string().optional(),
+  aspectRatio: z.enum(['landscape', 'square']).default('landscape'),
 });
 type ImageFormData = z.infer<typeof imageSchema>;
 
@@ -38,10 +41,16 @@ export function MainApp() {
 
   const textForm = useForm<TextFormData>({
     resolver: zodResolver(textSchema),
+    defaultValues: {
+      aspectRatio: 'landscape',
+    }
   });
 
   const imageForm = useForm<ImageFormData>({
     resolver: zodResolver(imageSchema),
+    defaultValues: {
+      aspectRatio: 'landscape',
+    }
   });
 
   const onTextSubmit: SubmitHandler<TextFormData> = async (data) => {
@@ -50,7 +59,8 @@ export function MainApp() {
     try {
       const result = await generateThumbnailsFromText({ 
         prompt: data.prompt,
-        thumbnailText: data.thumbnailText
+        thumbnailText: data.thumbnailText,
+        aspectRatio: data.aspectRatio,
       });
       setThumbnails(Object.values(result));
     } catch (error) {
@@ -82,6 +92,7 @@ export function MainApp() {
         description: data.description,
         photoDataUri,
         thumbnailText: data.thumbnailText,
+        aspectRatio: data.aspectRatio,
       });
       setThumbnails(Object.values(result));
     } catch (error) {
@@ -149,6 +160,29 @@ export function MainApp() {
                       />
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <Label>Aspect Ratio</Label>
+                     <Controller
+                        control={textForm.control}
+                        name="aspectRatio"
+                        render={({ field }) => (
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex items-center space-x-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="landscape" id="text-landscape" />
+                              <Label htmlFor="text-landscape">Landscape (16:9)</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="square" id="text-square" />
+                              <Label htmlFor="text-square">Square (1:1)</Label>
+                            </div>
+                          </RadioGroup>
+                        )}
+                      />
+                  </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="animate-spin" /> : 'Forge with Text'}
                   </Button>
@@ -186,6 +220,29 @@ export function MainApp() {
                         {...imageForm.register('thumbnailText')}
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                     <Label>Aspect Ratio</Label>
+                      <Controller
+                        control={imageForm.control}
+                        name="aspectRatio"
+                        render={({ field }) => (
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex items-center space-x-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="landscape" id="image-landscape" />
+                              <Label htmlFor="image-landscape">Landscape (16:9)</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="square" id="image-square" />
+                              <Label htmlFor="image-square">Square (1:1)</Label>
+                            </div>
+                          </RadioGroup>
+                        )}
+                      />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="animate-spin" /> : 'Forge with Image'}
