@@ -17,6 +17,7 @@ const GenerateThumbnailsFromImageAndTextInputSchema = z.object({
       "A reference image, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   description: z.string().describe('A text description to guide the thumbnail generation.'),
+  thumbnailText: z.string().optional().describe('Optional text to include in the thumbnail.'),
 });
 export type GenerateThumbnailsFromImageAndTextInput = z.infer<typeof GenerateThumbnailsFromImageAndTextInputSchema>;
 
@@ -43,7 +44,7 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
       responseModalities: ['IMAGE', 'TEXT'],
     };
     
-    const basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
+    let basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to modify the provided image based on the user's description to create an engaging, high-quality YouTube thumbnail.
 
@@ -53,14 +54,22 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
     3.  **Clear Focal Point:** The main subject should be instantly recognizable.
     4.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
     5.  **Emotionally Resonant:** The image should evoke curiosity, excitement, or another strong emotion.
-    6.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for text if the user's prompt implies it.
+    6.  **Readability:** Ensure the image is clear and understandable even at a small size.`;
 
-    **Instructions:**
-    Modify the reference image based on the following description to create a thumbnail that will get clicks.`;
+    if (input.thumbnailText) {
+        basePrompt += `
+    7.  **Text Integration:** Include the following text in the thumbnail. Make it BIG, BOLD, and EASY TO READ. Use a thick, clean font with high contrast against the background (e.g., by using an outline or shadow). Place it strategically to draw attention without obscuring the main subject.`;
+    }
 
+    let promptContent = `${basePrompt}\n\n**Instructions:**\nModify the reference image based on the following description to create a thumbnail that will get clicks.`;
+    
+    if (input.thumbnailText) {
+        promptContent += `\n\n**Text to include:** "${input.thumbnailText}"`
+    }
+    
     const prompt = [
         { media: { url: input.photoDataUri } },
-        { text: `${basePrompt}\n\n**Description:** ${input.description}` }
+        { text: `${promptContent}\n\n**Description:** ${input.description}` }
     ];
 
     const [result1, result2, result3] = await Promise.all([

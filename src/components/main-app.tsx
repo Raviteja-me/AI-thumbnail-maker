@@ -16,16 +16,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ThumbnailResults } from '@/components/thumbnail-results';
 import { ThumbForgeIcon } from './icons';
-import { Wand2, Upload, Loader2 } from 'lucide-react';
+import { Wand2, Upload, Loader2, CaseSensitive } from 'lucide-react';
 
 const textSchema = z.object({
   prompt: z.string().min(10, { message: 'Prompt must be at least 10 characters long.' }),
+  thumbnailText: z.string().optional(),
 });
 type TextFormData = z.infer<typeof textSchema>;
 
 const imageSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }),
   image: z.any().refine((files) => files?.length === 1, 'Image is required.'),
+  thumbnailText: z.string().optional(),
 });
 type ImageFormData = z.infer<typeof imageSchema>;
 
@@ -46,7 +48,10 @@ export function MainApp() {
     setIsLoading(true);
     setThumbnails(null);
     try {
-      const result = await generateThumbnailsFromText({ prompt: data.prompt });
+      const result = await generateThumbnailsFromText({ 
+        prompt: data.prompt,
+        thumbnailText: data.thumbnailText
+      });
       setThumbnails(Object.values(result));
     } catch (error) {
       console.error(error);
@@ -76,6 +81,7 @@ export function MainApp() {
       const result = await generateThumbnailsFromImageAndText({
         description: data.description,
         photoDataUri,
+        thumbnailText: data.thumbnailText,
       });
       setThumbnails(Object.values(result));
     } catch (error) {
@@ -131,6 +137,18 @@ export function MainApp() {
                       <p className="text-sm text-destructive">{textForm.formState.errors.prompt.message}</p>
                     )}
                   </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="thumbnailText">Thumbnail Text (Optional)</Label>
+                    <div className="relative">
+                      <CaseSensitive className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input
+                        id="thumbnailText"
+                        placeholder="e.g., 'NEW UPDATE!'"
+                        className="pl-10"
+                        {...textForm.register('thumbnailText')}
+                      />
+                    </div>
+                  </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="animate-spin" /> : 'Forge with Text'}
                   </Button>
@@ -156,6 +174,18 @@ export function MainApp() {
                      {imageForm.formState.errors.description && (
                       <p className="text-sm text-destructive">{imageForm.formState.errors.description.message}</p>
                     )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="imageThumbnailText">Thumbnail Text (Optional)</Label>
+                    <div className="relative">
+                       <CaseSensitive className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input
+                        id="imageThumbnailText"
+                        placeholder="e.g., 'I CAN'T BELIEVE IT!'"
+                        className="pl-10"
+                        {...imageForm.register('thumbnailText')}
+                      />
+                    </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? <Loader2 className="animate-spin" /> : 'Forge with Image'}

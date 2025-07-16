@@ -12,6 +12,7 @@ import {z} from 'genkit';
 
 const GenerateThumbnailsFromTextInputSchema = z.object({
   prompt: z.string().describe('A text prompt to generate thumbnails from.'),
+  thumbnailText: z.string().optional().describe('Optional text to include in the thumbnail.'),
 });
 export type GenerateThumbnailsFromTextInput = z.infer<typeof GenerateThumbnailsFromTextInputSchema>;
 
@@ -38,7 +39,7 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
         responseModalities: ['IMAGE', 'TEXT'],
     };
     
-    const prompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
+    let prompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to generate an engaging, high-quality YouTube thumbnail based on the user's video idea.
 
@@ -48,13 +49,28 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
     3.  **Clear Focal Point:** The main subject should be instantly recognizable.
     4.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
     5.  **Emotionally Resonant:** The image should evoke curiosity, excitement, or another strong emotion.
-    6.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for potential text overlays.
+    6.  **Readability:** Ensure the image is clear and understandable even at a small size.`;
+
+    if (input.thumbnailText) {
+        prompt += `
+    7.  **Text Integration:** Include the following text in the thumbnail. Make it BIG, BOLD, and EASY TO READ. Use a thick, clean font with high contrast against the background (e.g., by using an outline or shadow). Place it strategically to draw attention without obscuring the main subject.`;
+    } else {
+        prompt += `
+    Leave space for potential text overlays. Do not include any text in the image itself.`;
+    }
+
+    prompt += `
 
     **Instructions:**
-    Create a thumbnail for a YouTube video with the following topic. Do not include any text in the image itself. The image must have a 16:9 aspect ratio.
+    Create a thumbnail for a YouTube video with the following topic. The image must have a 16:9 aspect ratio.
+    
+    **Video Topic:** ${input.prompt}`;
 
-    **Video Topic:** ${input.prompt}
-    `;
+    if (input.thumbnailText) {
+        prompt += `
+    **Text to include:** "${input.thumbnailText}"`;
+    }
+
 
     const [result1, result2, result3] = await Promise.all([
         ai.generate({ model, prompt, config }),
