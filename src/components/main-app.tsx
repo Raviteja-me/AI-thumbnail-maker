@@ -19,6 +19,7 @@ import { ThumbnailResults } from '@/components/thumbnail-results';
 import { ApiKeyDialog } from '@/components/api-key-dialog';
 import { ThumbForgeIcon } from './icons';
 import { Wand2, Upload, Loader2, CaseSensitive, Settings } from 'lucide-react';
+import { getApiKey } from '@/lib/api-key-store';
 
 const textSchema = z.object({
   prompt: z.string().min(10, { message: 'Prompt must be at least 10 characters long.' }),
@@ -62,7 +63,7 @@ export function MainApp() {
     if (errorMessage.includes('API key not valid')) {
        toast({
         title: 'Invalid API Key',
-        description: 'Please check your API key and try again.',
+        description: 'Please check your API key and try again. You can set one in the settings.',
         variant: 'destructive',
       });
       setIsApiDialogOpen(true);
@@ -79,10 +80,12 @@ export function MainApp() {
     setIsLoading(true);
     setThumbnails(null);
     try {
+      const apiKey = getApiKey();
       const result = await generateThumbnailsFromText({ 
         prompt: data.prompt,
         thumbnailText: data.thumbnailText,
         aspectRatio: data.aspectRatio,
+        apiKey: apiKey ?? undefined,
       });
       setThumbnails(Object.values(result));
     } catch (error) {
@@ -104,12 +107,14 @@ export function MainApp() {
     setIsLoading(true);
     setThumbnails(null);
     try {
+      const apiKey = getApiKey();
       const photoDataUri = await toDataURL(data.image[0]);
       const result = await generateThumbnailsFromImageAndText({
         description: data.description,
         photoDataUri,
         thumbnailText: data.thumbnailText,
         aspectRatio: data.aspectRatio,
+        apiKey: apiKey ?? undefined,
       });
       setThumbnails(Object.values(result));
     } catch (error) {

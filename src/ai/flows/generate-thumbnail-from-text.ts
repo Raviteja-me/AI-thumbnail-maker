@@ -14,6 +14,7 @@ const GenerateThumbnailsFromTextInputSchema = z.object({
   prompt: z.string().describe('A text prompt to generate thumbnails from.'),
   thumbnailText: z.string().optional().describe('Optional text to include in the thumbnail.'),
   aspectRatio: z.enum(['landscape', 'square']).default('landscape').describe('The aspect ratio of the thumbnail.'),
+  apiKey: z.string().optional().describe('Optional Google AI API key.'),
 });
 export type GenerateThumbnailsFromTextInput = z.infer<typeof GenerateThumbnailsFromTextInputSchema>;
 
@@ -38,6 +39,7 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
     const model = 'googleai/gemini-2.0-flash-preview-image-generation';
     const config = { 
         responseModalities: ['IMAGE', 'TEXT'],
+        apiKey: input.apiKey || process.env.GOOGLE_API_KEY,
     };
     
     const aspectRatioText = input.aspectRatio === 'landscape' ? '16:9 landscape' : '1:1 square';
