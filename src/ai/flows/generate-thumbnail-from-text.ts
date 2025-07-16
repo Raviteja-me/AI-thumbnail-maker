@@ -26,6 +26,27 @@ export async function generateThumbnailsFromText(input: GenerateThumbnailsFromTe
   return generateThumbnailsFromTextFlow(input);
 }
 
+const thumbnailPrompt = ai.definePrompt({
+    name: 'viralThumbnailPrompt',
+    input: { schema: GenerateThumbnailsFromTextInputSchema },
+    prompt: `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
+
+    Your task is to generate an engaging, high-quality YouTube thumbnail based on the user's video idea.
+
+    **Key principles for a great thumbnail:**
+    1.  **High Contrast & Vibrant Colors:** Make the image pop. Use bright, saturated colors that grab attention.
+    2.  **Clear Focal Point:** The main subject should be instantly recognizable.
+    3.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
+    4.  **Emotionally Resonant:** The image should evoke curiosity, excitement, or another strong emotion.
+    5.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for potential text overlays.
+
+    **Instructions:**
+    Create a thumbnail for a YouTube video with the following topic. Do not include any text in the image itself.
+
+    **Video Topic:** {{{prompt}}}
+    `,
+});
+
 const generateThumbnailsFromTextFlow = ai.defineFlow(
   {
     name: 'generateThumbnailsFromTextFlow',
@@ -35,12 +56,11 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
   async (input) => {
     const model = 'googleai/gemini-2.0-flash-preview-image-generation';
     const config = { responseModalities: ['IMAGE', 'TEXT'] };
-    const prompt = `Generate a thumbnail based on the following prompt: ${input.prompt}`;
-
+    
     const [result1, result2, result3] = await Promise.all([
-        ai.generate({ model, prompt, config }),
-        ai.generate({ model, prompt, config }),
-        ai.generate({ model, prompt, config }),
+        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
+        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
+        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
     ]);
     
     return {
