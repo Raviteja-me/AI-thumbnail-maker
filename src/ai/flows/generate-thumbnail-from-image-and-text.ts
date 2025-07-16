@@ -41,7 +41,6 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
     const model = 'googleai/gemini-2.0-flash-preview-image-generation';
     const config = { 
       responseModalities: ['IMAGE', 'TEXT'],
-      aspectRatio: 'LANDSCAPE',
     };
     
     const basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.

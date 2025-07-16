@@ -36,7 +36,6 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
     const model = 'googleai/gemini-2.0-flash-preview-image-generation';
     const config = { 
         responseModalities: ['IMAGE', 'TEXT'],
-        aspectRatio: 'LANDSCAPE',
     };
     
     const prompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
@@ -52,7 +51,7 @@ const generateThumbnailsFromTextFlow = ai.defineFlow(
     6.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for potential text overlays.
 
     **Instructions:**
-    Create a thumbnail for a YouTube video with the following topic. Do not include any text in the image itself.
+    Create a thumbnail for a YouTube video with the following topic. Do not include any text in the image itself. The image must have a 16:9 aspect ratio.
 
     **Video Topic:** ${input.prompt}
     `;
