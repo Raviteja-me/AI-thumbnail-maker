@@ -26,23 +26,27 @@ export async function generateThumbnailsFromText(input: GenerateThumbnailsFromTe
   return generateThumbnailsFromTextFlow(input);
 }
 
-const thumbnailPrompt = ai.definePrompt({
-  name: 'thumbnailPrompt',
-  input: {schema: GenerateThumbnailsFromTextInputSchema},
-  output: {schema: GenerateThumbnailsFromTextOutputSchema},
-  prompt: `You are an AI that generates thumbnails based on a text prompt. Generate three distinct thumbnails based on the prompt below. Return them as data URIs.
-
-Prompt: {{{prompt}}}`,
-});
-
 const generateThumbnailsFromTextFlow = ai.defineFlow(
   {
     name: 'generateThumbnailsFromTextFlow',
     inputSchema: GenerateThumbnailsFromTextInputSchema,
     outputSchema: GenerateThumbnailsFromTextOutputSchema,
   },
-  async input => {
-    const {output} = await thumbnailPrompt(input);
-    return output!;
+  async (input) => {
+    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
+    const config = { responseModalities: ['IMAGE', 'TEXT'] };
+    const prompt = `Generate a thumbnail based on the following prompt: ${input.prompt}`;
+
+    const [result1, result2, result3] = await Promise.all([
+        ai.generate({ model, prompt, config }),
+        ai.generate({ model, prompt, config }),
+        ai.generate({ model, prompt, config }),
+    ]);
+    
+    return {
+        thumbnail1: result1.media.url,
+        thumbnail2: result2.media.url,
+        thumbnail3: result3.media.url,
+    };
   }
 );

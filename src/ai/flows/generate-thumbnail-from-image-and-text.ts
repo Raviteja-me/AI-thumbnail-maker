@@ -31,24 +31,30 @@ export async function generateThumbnailsFromImageAndText(input: GenerateThumbnai
   return generateThumbnailsFromImageAndTextFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateThumbnailsFromImageAndTextPrompt',
-  input: {schema: GenerateThumbnailsFromImageAndTextInputSchema},
-  output: {schema: GenerateThumbnailsFromImageAndTextOutputSchema},
-  prompt: `You are an AI thumbnail generator. Please generate three different thumbnail options based on the reference image and text description provided. Return the thumbnails as data URIs.
-
-Reference Image: {{media url=photoDataUri}}
-Description: {{{description}}}`,
-});
-
 const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
   {
     name: 'generateThumbnailsFromImageAndTextFlow',
     inputSchema: GenerateThumbnailsFromImageAndTextInputSchema,
     outputSchema: GenerateThumbnailsFromImageAndTextOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
+    const config = { responseModalities: ['IMAGE', 'TEXT'] };
+    const prompt = [
+      { media: { url: input.photoDataUri } },
+      { text: `Generate a thumbnail based on this image and the following description: ${input.description}` },
+    ];
+
+    const [result1, result2, result3] = await Promise.all([
+      ai.generate({ model, prompt, config }),
+      ai.generate({ model, prompt, config }),
+      ai.generate({ model, prompt, config }),
+    ]);
+
+    return {
+      thumbnail1: result1.media.url,
+      thumbnail2: result2.media.url,
+      thumbnail3: result3.media.url,
+    };
   }
 );
