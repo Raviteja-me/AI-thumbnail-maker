@@ -128,7 +128,7 @@ export function MainApp() {
     <>
       <ApiKeyDialog open={isApiDialogOpen} onOpenChange={setIsApiDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background">
-        <header className="px-4 lg:px-6 h-16 flex items-center border-b justify-between">
+        <header className="px-4 lg:px-6 h-16 flex items-center border-b justify-between bg-card">
           <div className="flex items-center gap-2">
             <ThumbForgeIcon className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-bold font-headline">ThumbForge AI</h1>
@@ -140,7 +140,7 @@ export function MainApp() {
         </header>
         <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
           <section className="text-center w-full max-w-4xl mx-auto mb-12 opacity-0 fade-in">
-            <h2 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary">
+            <h2 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-orange-400">
               Forge Your Perfect Thumbnail
             </h2>
             <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl opacity-0 fade-in-delay-1">
