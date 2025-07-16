@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { getApiKey, setApiKey } from '@/lib/api-key-store';
 import { KeyRound } from 'lucide-react';
+import { getApiKey as getApiKeyClient, setApiKey as setApiKeyClient } from '@/lib/api-key-store.client';
 
 interface ApiKeyDialogProps {
   open: boolean;
@@ -27,19 +28,20 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
 
   useEffect(() => {
     if (open) {
-      const storedKey = getApiKey();
+      const storedKey = getApiKeyClient();
       if (storedKey) {
         setKey(storedKey);
       }
     }
   }, [open]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (key.trim()) {
-      setApiKey(key);
+      setApiKeyClient(key); // Save to local storage for immediate client-side use
+      await setApiKey(key); // Save to cookie for server-side use
       toast({
         title: 'API Key Saved',
-        description: 'Your Google AI API key has been securely stored in your browser.',
+        description: 'Your Google AI API key has been securely stored.',
       });
       onOpenChange(false);
     } else {
@@ -57,7 +59,7 @@ export function ApiKeyDialog({ open, onOpenChange }: ApiKeyDialogProps) {
         <DialogHeader>
           <DialogTitle>Google AI API Key</DialogTitle>
           <DialogDescription>
-            Enter your API key to generate thumbnails. Your key is stored securely in your browser's local storage and never sent to our servers. You can get a key from{' '}
+            Enter your API key to generate thumbnails. Your key is stored securely. You can get a key from{' '}
             <a
               href="https://aistudio.google.com/app/apikey"
               target="_blank"
