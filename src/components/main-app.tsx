@@ -131,7 +131,7 @@ export function MainApp() {
         <header className="px-4 lg:px-6 h-16 flex items-center border-b justify-between bg-card">
           <div className="flex items-center gap-2">
             <ThumbForgeIcon className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold font-headline">ThumbForge AI</h1>
+            <h1 className="text-xl font-bold font-headline">Thumnailer AI</h1>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setIsApiDialogOpen(true)}>
             <Settings className="h-5 w-5" />
@@ -141,11 +141,8 @@ export function MainApp() {
         <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
           <section className="text-center w-full max-w-4xl mx-auto mb-12 opacity-0 fade-in">
             <h2 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-orange-400">
-              Forge Your Perfect Thumbnail
+              Nail your thumbnails.
             </h2>
-            <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl opacity-0 fade-in-delay-1">
-              Unleash the power of AI to create stunning, click-worthy thumbnails in seconds. Describe your vision or upload a reference, and let our Gemini-powered engine do the rest.
-            </p>
           </section>
 
           <Card className="w-full max-w-2xl mx-auto opacity-0 fade-in-delay-2 shadow-2xl shadow-primary/10">

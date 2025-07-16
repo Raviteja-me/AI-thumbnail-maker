@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'ThumbForge AI',
-  description: 'The best AI thumbnail maker ever built.',
+  title: 'Thumnailer AI',
+  description: 'Generate stunning thumbnails with AI.',
 };
 
 export default function RootLayout({
