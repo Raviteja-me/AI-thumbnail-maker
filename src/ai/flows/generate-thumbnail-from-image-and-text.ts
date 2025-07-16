@@ -31,10 +31,17 @@ export async function generateThumbnailsFromImageAndText(input: GenerateThumbnai
   return generateThumbnailsFromImageAndTextFlow(input);
 }
 
-const thumbnailPrompt = ai.definePrompt({
-    name: 'viralThumbnailFromImagePrompt',
-    input: { schema: GenerateThumbnailsFromImageAndTextInputSchema },
-    prompt: `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
+const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
+  {
+    name: 'generateThumbnailsFromImageAndTextFlow',
+    inputSchema: GenerateThumbnailsFromImageAndTextInputSchema,
+    outputSchema: GenerateThumbnailsFromImageAndTextOutputSchema,
+  },
+  async (input) => {
+    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
+    const config = { responseModalities: ['IMAGE', 'TEXT'] };
+    
+    const basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to modify the provided image based on the user's description to create an engaging, high-quality YouTube thumbnail.
 
@@ -46,27 +53,17 @@ const thumbnailPrompt = ai.definePrompt({
     5.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for text if the user's prompt implies it.
 
     **Instructions:**
-    Modify the reference image based on the following description to create a thumbnail that will get clicks.
+    Modify the reference image based on the following description to create a thumbnail that will get clicks.`;
 
-    **Description:** {{{description}}}
-    **Reference Image:** {{media url=photoDataUri}}
-    `,
-});
+    const prompt = [
+        { media: { url: input.photoDataUri } },
+        { text: `${basePrompt}\n\n**Description:** ${input.description}` }
+    ];
 
-const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
-  {
-    name: 'generateThumbnailsFromImageAndTextFlow',
-    inputSchema: GenerateThumbnailsFromImageAndTextInputSchema,
-    outputSchema: GenerateThumbnailsFromImageAndTextOutputSchema,
-  },
-  async (input) => {
-    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
-    const config = { responseModalities: ['IMAGE', 'TEXT'] };
-    
     const [result1, result2, result3] = await Promise.all([
-      ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
-      ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
-      ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
+      ai.generate({ model, prompt, config }),
+      ai.generate({ model, prompt, config }),
+      ai.generate({ model, prompt, config }),
     ]);
 
     return {

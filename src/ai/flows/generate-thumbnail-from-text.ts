@@ -26,10 +26,17 @@ export async function generateThumbnailsFromText(input: GenerateThumbnailsFromTe
   return generateThumbnailsFromTextFlow(input);
 }
 
-const thumbnailPrompt = ai.definePrompt({
-    name: 'viralThumbnailPrompt',
-    input: { schema: GenerateThumbnailsFromTextInputSchema },
-    prompt: `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
+const generateThumbnailsFromTextFlow = ai.defineFlow(
+  {
+    name: 'generateThumbnailsFromTextFlow',
+    inputSchema: GenerateThumbnailsFromTextInputSchema,
+    outputSchema: GenerateThumbnailsFromTextOutputSchema,
+  },
+  async (input) => {
+    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
+    const config = { responseModalities: ['IMAGE', 'TEXT'] };
+    
+    const prompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to generate an engaging, high-quality YouTube thumbnail based on the user's video idea.
 
@@ -43,24 +50,13 @@ const thumbnailPrompt = ai.definePrompt({
     **Instructions:**
     Create a thumbnail for a YouTube video with the following topic. Do not include any text in the image itself.
 
-    **Video Topic:** {{{prompt}}}
-    `,
-});
+    **Video Topic:** ${input.prompt}
+    `;
 
-const generateThumbnailsFromTextFlow = ai.defineFlow(
-  {
-    name: 'generateThumbnailsFromTextFlow',
-    inputSchema: GenerateThumbnailsFromTextInputSchema,
-    outputSchema: GenerateThumbnailsFromTextOutputSchema,
-  },
-  async (input) => {
-    const model = 'googleai/gemini-2.0-flash-preview-image-generation';
-    const config = { responseModalities: ['IMAGE', 'TEXT'] };
-    
     const [result1, result2, result3] = await Promise.all([
-        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
-        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
-        ai.generate({ model, prompt: await thumbnailPrompt.render({input}), config }),
+        ai.generate({ model, prompt, config }),
+        ai.generate({ model, prompt, config }),
+        ai.generate({ model, prompt, config }),
     ]);
     
     return {
