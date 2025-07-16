@@ -39,18 +39,22 @@ const generateThumbnailsFromImageAndTextFlow = ai.defineFlow(
   },
   async (input) => {
     const model = 'googleai/gemini-2.0-flash-preview-image-generation';
-    const config = { responseModalities: ['IMAGE', 'TEXT'] };
+    const config = { 
+      responseModalities: ['IMAGE', 'TEXT'],
+      aspectRatio: 'LANDSCAPE',
+    };
     
     const basePrompt = `You are a viral marketing expert specializing in creating clickable YouTube thumbnails.
 
     Your task is to modify the provided image based on the user's description to create an engaging, high-quality YouTube thumbnail.
 
     **Key principles for a great thumbnail:**
-    1.  **High Contrast & Vibrant Colors:** Make the image pop. Use bright, saturated colors that grab attention.
-    2.  **Clear Focal Point:** The main subject should be instantly recognizable.
-    3.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
-    4.  **Emotionally Resonant:** The image should evoke curiosity, excitement, or another strong emotion.
-    5.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for text if the user's prompt implies it.
+    1.  **Aspect Ratio:** The image MUST be 16:9 landscape.
+    2.  **High Contrast & Vibrant Colors:** Make the image pop. Use bright, saturated colors that grab attention.
+    3.  **Clear Focal Point:** The main subject should be instantly recognizable.
+    4.  **Dynamic Composition:** Use angles and layouts that create energy and interest.
+    5.  **Emotionally Resonant:** The image should evoke curiosity, excitement, or another strong emotion.
+    6.  **Readability:** Ensure the image is clear and understandable even at a small size. Leave space for text if the user's prompt implies it.
 
     **Instructions:**
     Modify the reference image based on the following description to create a thumbnail that will get clicks.`;
